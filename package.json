@@ -1,0 +1,27 @@
+{
+  "name": "npm-myrenaultapi",
+  "version": "1.0.0",
+  "description": "Provides an API for Renault / Dacia / Alpine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MagnasiePro/npm-myrenaultapi.git"
+  },
+  "keywords": [
+    "Renault",
+    "Dacia",
+    "Alpine",
+    "API",
+    "ZOE",
+    "Spring"
+  ],
+  "author": "MagnasiePro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MagnasiePro/npm-myrenaultapi/issues"
+  },
+  "homepage": "https://github.com/MagnasiePro/npm-myrenaultapi#readme"
+}
