@@ -1,6 +1,16 @@
 // Import any required dependencies
-import axios from 'axios';
-import { AccountType } from './type';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import {
+  Account,
+  ActionEndpoint,
+  ActionEndpointVersion2,
+  VehicleDataEndpoint,
+  VehicleDataEndpointVersion,
+  VehicleDataEndpointVersion1,
+  VehicleDataEndpointVersion2,
+  VehicleDetails,
+  VehicleDetailsExtended,
+} from './type';
 
 /**
  * Represents an API for Renault services.
@@ -24,7 +34,7 @@ class MyRenaultAPI {
   private gigyaJWToken?: string;
   private gigyaPersonId?: string;
   private ownerPersonId?: string; // Seems that it can be equal to gigyaPersonId in some cases, not in my case.
-  private accountType: AccountType;
+  private accountType: Account;
 
   private vin: string; // Vehicle Identification Number
 
@@ -34,20 +44,20 @@ class MyRenaultAPI {
    * @param {string} email - The email address of the account.
    * @param {string} password - The password of the account.
    * @param {string} region - The region of the account.
-   * @param {string} vin - The VIN of the vehicle.
+  //  * @param {string} vin - The VIN of the vehicle.
    * @param {AccountType} accountType - The type of the account. Default is 'MYRENAULT'.
    */
   constructor(
     email: string,
     password: string,
     country: string,
-    vin: string,
-    accountType: AccountType = 'MYRENAULT',
+    // vin: string,
+    accountType: Account = 'MYRENAULT',
   ) {
     this.email = email;
     this.password = password;
     this.country = country;
-    this.vin = vin;
+    // this.vin = vin;
 
     // Define the Gigya API
     this.gigyaBaseUrl = 'https://accounts.eu1.gigya.com';
@@ -131,31 +141,6 @@ class MyRenaultAPI {
     }
   }
 
-  public async getVehicleDetails() {
-    // Define the URL
-    const vehicleDetailsUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/vehicles/${this.vin}/details?country=${this.country}`;
-
-    // Define the headers
-    const vehicleDetailsHeaders = {
-      apikey: this.kamareonApiKey,
-      'x-gigya-id_token': this.gigyaJWToken,
-    };
-
-    // Make the request
-    const vehicleDetailsResponse = await axios.get(vehicleDetailsUrl, {
-      headers: vehicleDetailsHeaders,
-    });
-
-    // Handle the response
-    switch (vehicleDetailsResponse.status) {
-      case 200:
-        return vehicleDetailsResponse.data;
-        break;
-      default:
-        throw new Error('Unknown error');
-    }
-  }
-
   /**
    * Login to Gigya.
    * @returns A promise that resolves when the login is done.
@@ -167,8 +152,210 @@ class MyRenaultAPI {
       await this.getGigyaCookie();
       await this.getGigyaJWToken();
       await this.getOwnerPersonId();
+      this.lastLoginTime = Date.now();
     } catch (error) {
       console.error('An error occured while logging in:', error);
+    }
+  }
+
+  /**
+   * Get the details of the vehicle.
+   * @param {string} vin - The VIN of the vehicle.
+   * @returns A promise that resolves when the request is done.
+   * @throws An error if the request failed.
+   */
+  public async getVehicleDetails(
+    vin: string,
+  ): Promise<VehicleDetails | undefined> {
+    // Define the URL
+    const vehicleDetailsUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/vehicles/${vin}/details?country=${this.country}`;
+
+    // Define the headers
+    const vehicleDetailsHeaders = {
+      apikey: this.kamareonApiKey,
+      'x-gigya-id_token': this.gigyaJWToken,
+    };
+
+    try {
+      // Make the request
+      const vehicleDetailsResponse: AxiosResponse = await axios.get(
+        vehicleDetailsUrl,
+        {
+          headers: vehicleDetailsHeaders,
+        },
+      );
+
+      // Check for success status codes
+      if (
+        vehicleDetailsResponse.status >= 200 &&
+        vehicleDetailsResponse.status < 300
+      ) {
+        return vehicleDetailsResponse.data as VehicleDetails;
+      }
+    } catch (error: any) {
+      // Handle specific error status codes
+      switch (error.response.status) {
+        case 400:
+        case 401:
+          throw new Error('Unauthorized');
+        default:
+          throw new Error('Unknown error');
+      }
+    }
+  }
+
+  public async getVehiclesDetails(): Promise<
+    VehicleDetailsExtended[] | undefined
+  > {
+    // Define the URL
+    const vehiclesDetailsUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/vehicles?country=${this.country}`;
+
+    // Define the headers
+    const vehiclesDetailsHeaders = {
+      apikey: this.kamareonApiKey,
+      'x-gigya-id_token': this.gigyaJWToken,
+    };
+
+    try {
+      // Make the request
+      const vehiclesDetailsResponse: AxiosResponse = await axios.get(
+        vehiclesDetailsUrl,
+        {
+          headers: vehiclesDetailsHeaders,
+        },
+      );
+
+      // Check for success status codes
+      if (
+        vehiclesDetailsResponse.status >= 200 &&
+        vehiclesDetailsResponse.status < 300
+      ) {
+        return vehiclesDetailsResponse.data
+          .vehicleLinks as VehicleDetailsExtended[];
+      }
+    } catch (error: any) {
+      // Handle specific error status codes
+      switch (error.response.status) {
+        case 400:
+        case 401:
+          throw new Error('Unauthorized');
+        default:
+          throw new Error('Unknown error');
+      }
+    }
+  }
+
+  /**
+   * Get the vehicle data.
+   * @param {string} vin - The VIN of the vehicle.
+   * @param {VehicleDataEndpoint} endpoint - The endpoint to get the data from.
+   * @returns A promise that resolves when the request is done.
+   * @throws An error if the request failed.
+   */
+  public async getVehicleData(vin: string, endpoint: VehicleDataEndpoint) {
+    // Define the version of the endpoint
+    const versionEndpoint: VehicleDataEndpointVersion =
+      endpoint in VehicleDataEndpointVersion2 ? 'v2' : 'v1';
+
+    // Define the URL
+    const vehicleDataUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/kamereon/kca/car-adapter/${versionEndpoint}/cars/${vin}/${endpoint}?country=${this.country}`;
+
+    // Define the headers
+    const vehicleDataHeaders = {
+      apikey: this.kamareonApiKey,
+      'x-gigya-id_token': this.gigyaJWToken,
+    };
+
+    try {
+      // Make the request
+      const vehicleDataResponse = await axios.get(vehicleDataUrl, {
+        headers: vehicleDataHeaders,
+      });
+
+      return vehicleDataResponse.data;
+    } catch (error: any) {
+      // Handle the response
+      switch (error.response.status) {
+        case 501:
+          throw new Error('Not implemented');
+        case 401:
+          throw new Error('Unauthorized');
+        default:
+          throw new Error('Unknown error');
+      }
+    }
+  }
+
+  /**
+   * Get the vehicle capabilities.
+   * @param {string} vin - The VIN of the vehicle.
+   * @returns A promise that resolves when the request is done.
+   * @throws An error if the request failed.
+   */
+  public async getVehicleCapabilities(vin: string) {
+    // Define an array of endpoints based on the VehicleDataEndpoint enum
+    const endpoints: VehicleDataEndpoint[] = [
+      ...(Object.values(VehicleDataEndpointVersion1) as VehicleDataEndpoint[]),
+      ...(Object.values(VehicleDataEndpointVersion2) as VehicleDataEndpoint[]),
+    ];
+
+    // Check if the login is still valid
+    await this.getVehicleDetails(vin);
+
+    // Check every endpoint and return the ones that are implemented
+    const implementedEndpoints = await Promise.all(
+      endpoints.map(async (endpoint) => {
+        try {
+          await this.getVehicleData(vin, endpoint);
+          return endpoint;
+        } catch (error) {
+          return null;
+        }
+      }),
+    );
+    return implementedEndpoints.filter((endpoint) => endpoint !== null);
+  }
+
+  /**
+   * Post an action to the vehicle.
+   * @param {string} vin - The VIN of the vehicle.
+   * @param {ActionEndpoint} endpoint - The endpoint to post the action to.
+   * @param {VehicleActionData} data - The data to post.
+   */
+  public async postVehicleAction(
+    vin: string,
+    endpoint: ActionEndpoint,
+    data: any,
+  ) {
+    // Define the version of the endpoint
+    const versionEndpoint: VehicleDataEndpointVersion =
+      endpoint in ActionEndpointVersion2 ? 'v2' : 'v1';
+
+    // Define the URL
+    const vehicleActionUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/kamereon/kca/car-adapter/${versionEndpoint}/cars/${vin}/actions/${endpoint}?country=${this.country}`;
+
+    // Define the headers
+    const vehicleActionHeaders = {
+      apikey: this.kamareonApiKey,
+      'x-gigya-id_token': this.gigyaJWToken,
+      'Content-Type': 'application/vnd.api+json',
+    };
+
+    try {
+      // Make the request
+      const vehicleActionResponse = await axios.post(vehicleActionUrl, data, {
+        headers: vehicleActionHeaders,
+      });
+
+      return vehicleActionResponse.data;
+    } catch (error: any) {
+      // Handle the response
+      switch (error.reponse.status) {
+        case 401:
+          throw new Error('Unauthorized');
+        default:
+          throw new Error('Unknown error');
+      }
     }
   }
 }
