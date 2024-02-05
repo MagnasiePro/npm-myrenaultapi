@@ -46,7 +46,7 @@ export enum ActionEndpointVersion1 {
  * Enum representing different vehicle action endpoints for version 2.
  */
 export enum ActionEndpointVersion2 {
-  ChargeSchedule = 'charge-schedule', // TODO: Check if this is correct
+  ChargeSchedule = 'charge-schedule',
   HvacSchedule = 'hvac-schedule', // TODO: Check if this is correct
 }
 
@@ -85,178 +85,176 @@ export type VehicleActionData = {
  * Type of the response when performing a details request of a vehicle.
  * This is the type of the `data` property of the response.
  */
-export type VehicleDetails = {
-  vin: string;
-  registrationDate: string;
-  firstRegistrationDate: string;
-  engineType: string;
-  engineRatio: string;
-  modelSCR: string;
-  deliveryCountry: {
-    code: string;
-    label: string;
-  };
-  family: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  tcu: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  navigationAssistanceLevel: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  battery: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  radioType: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  registrationCountry: {
-    code: string;
-  };
-  brand: {
-    label: string;
-  };
-  model: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  gearbox: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  version: {
-    code: string;
-  };
-  energy: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  bodyType: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  steeringSide: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  registrationNumber: string;
-  vcd: string;
-  assets: {
-    assetType: string;
-    viewpoint: string;
-    renditions: {
-      resolutionType: string;
-      url: string;
-    }[];
-  }[];
-  yearsOfMaintenance: number;
-  deliveryDate: string;
-  retrievedFromDhs: boolean;
-  radioCode: string;
-};
+// export type VehicleDetails = {
+//   vin: string;
+//   registrationDate: string;
+//   firstRegistrationDate: string;
+//   engineType: string;
+//   engineRatio: string;
+//   modelSCR: string;
+//   deliveryCountry: {
+//     code: string;
+//     label: string;
+//   };
+//   family: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   tcu: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   navigationAssistanceLevel: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   battery: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   radioType: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   registrationCountry: {
+//     code: string;
+//   };
+//   brand: {
+//     label: string;
+//   };
+//   model: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   gearbox: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   version: {
+//     code: string;
+//   };
+//   energy: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   bodyType: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   steeringSide: {
+//     code: string;
+//     label: string;
+//     group: string;
+//   };
+//   registrationNumber: string;
+//   vcd: string;
+//   assets: {
+//     assetType: string;
+//     viewpoint: string;
+//     renditions: {
+//       resolutionType: string;
+//       url: string;
+//     }[];
+//   }[];
+//   yearsOfMaintenance: number;
+//   deliveryDate: string;
+//   retrievedFromDhs: boolean;
+//   radioCode: string;
+// };
 
 /**
  * Type of the response when performing a details request of a list of vehicles.
  * This is the type of the `data` property of the response.
  */
-export type VehicleDetailsExtended = {
+type OwnershipStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING'; // TODO: Check if this is correct
+
+export interface ConnectedDriver {
+  role: string;
+  createdDate: string;
+  lastModifiedDate: string;
+}
+
+export interface InstallSoftware {
+  id: string;
+  userStatus: string;
+  createdDate: string;
+  lastModifiedDate: string;
+}
+
+export interface Country {
+  code: string;
+  label?: string;
+  group?: string;
+}
+
+export interface AssetRendition {
+  resolutionType: string;
+  url: string;
+}
+
+export interface Asset {
+  assetType: string;
+  viewpoint: string;
+  renditions: AssetRendition[];
+}
+
+export interface VehicleDetails {
   vin: string;
   registrationDate: string;
   firstRegistrationDate: string;
   engineType: string;
   engineRatio: string;
   modelSCR: string;
-  deliveryCountry: {
-    code: string;
-    label: string;
-  };
-  family: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  tcu: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  navigationAssistanceLevel: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  battery: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  radioType: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  registrationCountry: {
-    code: string;
-  };
-  brand: {
-    label: string;
-  };
-  model: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  gearbox: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  version: {
-    code: string;
-  };
-  energy: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  bodyType: {
-    code: string;
-    label: string;
-    group: string;
-  };
-  steeringSide: {
-    code: string;
-    label: string;
-    group: string;
-  };
+  deliveryCountry: Country;
+  family: Country;
+  tcu: Country;
+  navigationAssistanceLevel: Country;
+  battery: Country;
+  radioType: Country;
+  registrationCountry: Country;
+  brand: Country;
+  model: Country;
+  gearbox: Country;
+  version: Country;
+  energy: Country;
+  bodyType: Country;
+  steeringSide: Country;
   registrationNumber: string;
   vcd: string;
-  assets: {
-    assetType: string;
-    viewpoint: string;
-    renditions: {
-      resolutionType: string;
-      url: string;
-    }[];
-  }[];
+  assets: Asset[];
   yearsOfMaintenance: number;
+  connectivityTechnology: string;
+  easyConnectStore: boolean;
+  electrical: boolean;
+  rlinkStore: boolean;
   deliveryDate: string;
   retrievedFromDhs: boolean;
+  engineEnergyType: string;
   radioCode: string;
-};
+}
+
+export interface OwnershipInfo {
+  brand: string;
+  vin: string;
+  status: OwnershipStatus;
+  linkType: string;
+  garageBrand: string;
+  startDate: string;
+  createdDate: string;
+  lastModifiedDate: string;
+  ownershipStartDate: string;
+  ownershipEndDate: string;
+  cancellationReason: Record<string, never>; // Modify as needed
+  connectedDriver: ConnectedDriver;
+  installSoftware: InstallSoftware;
+  vehicleDetails: VehicleDetails;
+}

@@ -4,12 +4,12 @@ import {
   Account,
   ActionEndpoint,
   ActionEndpointVersion2,
+  OwnershipInfo,
   VehicleDataEndpoint,
   VehicleDataEndpointVersion,
   VehicleDataEndpointVersion1,
   VehicleDataEndpointVersion2,
   VehicleDetails,
-  VehicleDetailsExtended,
 } from './type';
 
 /**
@@ -35,8 +35,6 @@ class MyRenaultAPI {
   private gigyaPersonId?: string;
   private ownerPersonId?: string; // Seems that it can be equal to gigyaPersonId in some cases, not in my case.
   private accountType: Account;
-
-  private vin: string; // Vehicle Identification Number
 
   /**
    * Create an instance of MyRenaultAPI.
@@ -204,9 +202,7 @@ class MyRenaultAPI {
     }
   }
 
-  public async getVehiclesDetails(): Promise<
-    VehicleDetailsExtended[] | undefined
-  > {
+  public async getVehiclesDetails(): Promise<OwnershipInfo[] | undefined> {
     // Define the URL
     const vehiclesDetailsUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/vehicles?country=${this.country}`;
 
@@ -230,8 +226,7 @@ class MyRenaultAPI {
         vehiclesDetailsResponse.status >= 200 &&
         vehiclesDetailsResponse.status < 300
       ) {
-        return vehiclesDetailsResponse.data
-          .vehicleLinks as VehicleDetailsExtended[];
+        return vehiclesDetailsResponse.data.vehicleLinks as OwnershipInfo[];
       }
     } catch (error: any) {
       // Handle specific error status codes
@@ -254,8 +249,11 @@ class MyRenaultAPI {
    */
   public async getVehicleData(vin: string, endpoint: VehicleDataEndpoint) {
     // Define the version of the endpoint
-    const versionEndpoint: VehicleDataEndpointVersion =
-      endpoint in VehicleDataEndpointVersion2 ? 'v2' : 'v1';
+    const versionEndpoint: VehicleDataEndpointVersion = Object.values(
+      VehicleDataEndpointVersion2,
+    ).includes(endpoint as string)
+      ? 'v2'
+      : 'v1';
 
     // Define the URL
     const vehicleDataUrl = `${this.kamareonBaseUrl}/accounts/${this.ownerPersonId}/kamereon/kca/car-adapter/${versionEndpoint}/cars/${vin}/${endpoint}?country=${this.country}`;
@@ -280,6 +278,8 @@ class MyRenaultAPI {
           throw new Error('Not implemented');
         case 401:
           throw new Error('Unauthorized');
+        case 500:
+          throw new Error('Internal server error'); // It can be "Too many requests", renault api is very limited and unstable
         default:
           throw new Error('Unknown error');
       }
