@@ -141,19 +141,26 @@ class MyRenaultAPI {
 
   /**
    * Login to Gigya.
+   * @param {boolean} force - Whether to force the login or not.
    * @returns A promise that resolves when the login is done.
    * @throws An error if the login failed.
    */
-  public async login() {
-    try {
-      // TODO: Check if the cookie is still valid
-      await this.getGigyaCookie();
-      await this.getGigyaJWToken();
-      await this.getOwnerPersonId();
-      this.lastLoginTime = Date.now();
-    } catch (error) {
-      console.error('An error occured while logging in:', error);
+  public async login(force?: boolean) {
+    // console.log('Checking if the login is still valid');
+    // console.log('Last login time:', this.lastLoginTime);
+    if (!force && this.lastLoginTime) {
+      const timeSinceLastLogin = Date.now() - this.lastLoginTime;
+      // console.log('Time since last login:', timeSinceLastLogin);
+      // console.log('Expiration time:', this.expirationTime * 1000);
+      if (timeSinceLastLogin < this.expirationTime * 1000) {
+        // console.log('Login is still valid');
+        return;
+      }
     }
+    await this.getGigyaCookie();
+    await this.getGigyaJWToken();
+    await this.getOwnerPersonId();
+    this.lastLoginTime = Date.now();
   }
 
   /**
@@ -196,6 +203,10 @@ class MyRenaultAPI {
         case 400:
         case 401:
           throw new Error('Unauthorized');
+        case 429:
+          throw new Error('Too many requests');
+        case 500:
+          throw new Error('Internal server error'); // It can be "Too many requests", renault api is very limited and unstable
         default:
           throw new Error('Unknown error');
       }
@@ -234,6 +245,10 @@ class MyRenaultAPI {
         case 400:
         case 401:
           throw new Error('Unauthorized');
+        case 429:
+          throw new Error('Too many requests');
+        case 500:
+          throw new Error('Internal server error'); // It can be "Too many requests", renault api is very limited and unstable
         default:
           throw new Error('Unknown error');
       }
@@ -251,7 +266,7 @@ class MyRenaultAPI {
     // Define the version of the endpoint
     const versionEndpoint: VehicleDataEndpointVersion = Object.values(
       VehicleDataEndpointVersion2,
-    ).includes(endpoint as string)
+    ).includes(endpoint as any)
       ? 'v2'
       : 'v1';
 
@@ -278,6 +293,8 @@ class MyRenaultAPI {
           throw new Error('Not implemented');
         case 401:
           throw new Error('Unauthorized');
+        case 429:
+          throw new Error('Too many requests');
         case 500:
           throw new Error('Internal server error'); // It can be "Too many requests", renault api is very limited and unstable
         default:
@@ -353,6 +370,8 @@ class MyRenaultAPI {
       switch (error.reponse.status) {
         case 401:
           throw new Error('Unauthorized');
+        case 429:
+          throw new Error('Too many requests');
         default:
           throw new Error('Unknown error');
       }
