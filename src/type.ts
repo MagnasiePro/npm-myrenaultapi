@@ -2,7 +2,7 @@
  * Enum representing different brand API endpoints.
  */
 export type Account = 'MYRENAULT' | 'MYDACIA' | 'MYALPINE';
-// TODO: Check if MYDADIA and MYALPINE are correct names (I don't have any account to test)
+// TODO: Check if MYDACIA and MYALPINE are correct names (I don't have any account to test)
 // Not sure if Nissan and Mitsubishi are supported
 
 export type VehicleDataEndpoint =
@@ -74,102 +74,12 @@ export type VehicleActionData = {
         };
       }
     | {
-        type: 'pause-resume';
+        type: 'ChargeMode';
         attributes: {
-          action: 'resume';
+          action: 'schedule_mode' | 'always' | 'always_schedule';
         };
       };
 };
-
-/**
- * Type of the response when performing a details request of a vehicle.
- * This is the type of the `data` property of the response.
- */
-// export type VehicleDetails = {
-//   vin: string;
-//   registrationDate: string;
-//   firstRegistrationDate: string;
-//   engineType: string;
-//   engineRatio: string;
-//   modelSCR: string;
-//   deliveryCountry: {
-//     code: string;
-//     label: string;
-//   };
-//   family: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   tcu: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   navigationAssistanceLevel: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   battery: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   radioType: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   registrationCountry: {
-//     code: string;
-//   };
-//   brand: {
-//     label: string;
-//   };
-//   model: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   gearbox: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   version: {
-//     code: string;
-//   };
-//   energy: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   bodyType: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   steeringSide: {
-//     code: string;
-//     label: string;
-//     group: string;
-//   };
-//   registrationNumber: string;
-//   vcd: string;
-//   assets: {
-//     assetType: string;
-//     viewpoint: string;
-//     renditions: {
-//       resolutionType: string;
-//       url: string;
-//     }[];
-//   }[];
-//   yearsOfMaintenance: number;
-//   deliveryDate: string;
-//   retrievedFromDhs: boolean;
-//   radioCode: string;
-// };
 
 /**
  * Type of the response when performing a details request of a list of vehicles.

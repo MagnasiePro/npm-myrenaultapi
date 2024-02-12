@@ -146,14 +146,9 @@ class MyRenaultAPI {
    * @throws An error if the login failed.
    */
   public async login(force?: boolean) {
-    // console.log('Checking if the login is still valid');
-    // console.log('Last login time:', this.lastLoginTime);
     if (!force && this.lastLoginTime) {
       const timeSinceLastLogin = Date.now() - this.lastLoginTime;
-      // console.log('Time since last login:', timeSinceLastLogin);
-      // console.log('Expiration time:', this.expirationTime * 1000);
       if (timeSinceLastLogin < this.expirationTime * 1000) {
-        // console.log('Login is still valid');
         return;
       }
     }
