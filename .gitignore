@@ -1,0 +1,28 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+*.js
+*.tgz
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Tests
+test.ts
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
