@@ -16,7 +16,7 @@ This package allows developers to easily access and manage data from their Renau
 To install the package, use npm:
 
 ```bash
-npm install myrenaultapi
+npm i npm-myrenaultapi
 ```
 
 ## Usage
